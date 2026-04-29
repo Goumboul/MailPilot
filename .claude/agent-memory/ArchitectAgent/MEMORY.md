@@ -1,0 +1,2 @@
+- [MailPilot Project Context](project_mailpilot.md) — Email Automation Platform: Laravel + MySQL + React, rules/templates/recipients/queues/logs
+- [User Profile — Lucca](user_lucca.md) — Prefers simple, production-ready Laravel; no over-engineering

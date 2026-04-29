@@ -1,0 +1,3 @@
+- [Phase 1 - Data Layer](project_phase1.md) — migrations, models, factories, seeders complete; backend lives in /backend subdir; SQLite dev, MySQL-ready
+- [Phase 2 - CRUD API](project_phase2.md) — 20 REST endpoints for Recipients/EmailTemplates/Rules/EmailSends; controllers in Api/ namespace; api.php registered in bootstrap/app.php
+- [Phase 3 - Async Email System](project_phase3.md) — SendEmailJob ($tries=3, backoff), SendEmail mailable, TemplateRenderer, EmailSend API with dispatch, full log pipeline
