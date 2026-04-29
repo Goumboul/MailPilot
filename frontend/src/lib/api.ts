@@ -15,10 +15,10 @@ const log = {
   request: (url: string, method: string = 'GET') => {
     if (DEBUG) console.log(`[API] ${method} ${BASE_URL}/api${url}`)
   },
-  response: (url: string, status: number, ms: number) => {
+  response: (_url: string, status: number, ms: number) => {
     if (DEBUG) console.log(`[API] ✓ ${status} in ${ms}ms`)
   },
-  error: (url: string, error: Error) => {
+  error: (_url: string, error: Error) => {
     if (DEBUG) console.error(`[API] ✗ ${error.message}`)
   },
 }
@@ -66,8 +66,6 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
     if (res.status === 204) return undefined as T
     return res.json()
   } catch (error) {
-    const ms = Math.round(performance.now() - start)
-
     if (error instanceof APIError) {
       log.error(url, error)
       throw error
@@ -162,6 +160,11 @@ export const api = {
         body: JSON.stringify(body),
       }).then(unwrap),
     destroy: (id: number) => request<void>(`/rules/${id}`, { method: 'DELETE' }),
+    trigger: (id: number) =>
+      request<{ matched: number; already_sent: number; enqueued: number }>(
+        `/rules/${id}/trigger`,
+        { method: 'POST' },
+      ),
   },
 
   sends: {
