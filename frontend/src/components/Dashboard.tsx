@@ -2,6 +2,7 @@ import { useState, useEffect, type ReactNode } from 'react'
 import { api } from '../lib/api'
 import { formatDate } from '../lib/utils'
 import { StatusBadge } from './common/Badge'
+import { APIErrorAlert } from './common/APIErrorAlert'
 import type { EmailSend, Recipient, EmailTemplate, Rule } from '../types'
 
 interface StatCardProps {
@@ -79,10 +80,8 @@ export function Dashboard({ onNavigate }: DashboardProps) {
 
   if (error) {
     return (
-      <div className="rounded-xl bg-red-500/10 ring-1 ring-red-500/20 p-5 text-red-400">
-        <p className="font-medium">Failed to connect to API</p>
-        <p className="mt-1 text-sm text-red-400/70">{error}</p>
-        <p className="mt-2 text-xs text-red-400/50">Make sure Laravel is running on http://127.0.0.1:8000</p>
+      <div className="max-w-2xl">
+        <APIErrorAlert error={error} />
       </div>
     )
   }

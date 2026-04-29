@@ -1,4 +1,5 @@
 import { type ReactNode } from 'react'
+import { APIHealthCheck } from './common/APIHealthCheck'
 
 type Page = 'dashboard' | 'recipients' | 'templates' | 'rules' | 'sends'
 
@@ -120,6 +121,9 @@ export function Layout({ page, onNavigate, children }: LayoutProps) {
           {children}
         </main>
       </div>
+
+      {/* API Health Check (bottom-right corner) */}
+      <APIHealthCheck />
     </div>
   )
 }

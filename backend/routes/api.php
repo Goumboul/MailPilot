@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::apiResource('recipients', RecipientController::class);
 Route::apiResource('email-templates', EmailTemplateController::class);
 Route::apiResource('rules', RuleController::class);
+Route::post('rules/{rule}/trigger', [RuleController::class, 'trigger']);
 Route::get('email-sends', [EmailSendController::class, 'index']);
 Route::get('email-sends/{emailSend}', [EmailSendController::class, 'show']);
 Route::get('email-sends/{emailSend}/logs', [EmailSendController::class, 'logs']);
