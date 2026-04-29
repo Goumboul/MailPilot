@@ -10,25 +10,22 @@ class TemplateRenderer
     public function render(EmailTemplate $template, Recipient $recipient): array
     {
         $variables = array_merge(
-            [
-                'name'  => $recipient->name,
-                'email' => $recipient->email,
-            ],
+            ['name' => $recipient->name, 'email' => $recipient->email],
             $recipient->metadata ?? []
         );
 
         return [
-            'subject' => $this->interpolate($template->subject, $variables),
-            'body'    => $this->interpolate($template->body, $variables),
+            'subject' => $this->replaceVariables($template->subject, $variables),
+            'body'    => $this->replaceVariables($template->body, $variables),
         ];
     }
 
-    private function interpolate(string $text, array $variables): string
+    private function replaceVariables(string $content, array $variables): string
     {
         foreach ($variables as $key => $value) {
-            $text = str_replace('{{' . $key . '}}', (string) $value, $text);
+            $content = str_replace('{{' . $key . '}}', (string) $value, $content);
         }
 
-        return $text;
+        return $content;
     }
 }
