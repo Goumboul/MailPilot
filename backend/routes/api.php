@@ -4,11 +4,18 @@ use App\Http\Controllers\Api\EmailSendController;
 use App\Http\Controllers\Api\EmailTemplateController;
 use App\Http\Controllers\Api\RecipientController;
 use App\Http\Controllers\Api\RuleController;
+use App\Http\Controllers\Api\StatsController;
 use Illuminate\Support\Facades\Route;
 
 Route::apiResource('recipients', RecipientController::class);
 Route::apiResource('email-templates', EmailTemplateController::class);
 Route::apiResource('rules', RuleController::class);
+Route::post('rules/{rule}/trigger', [RuleController::class, 'trigger']);
 
-Route::apiResource('email-sends', EmailSendController::class)->only(['index', 'store', 'show', 'destroy']);
+Route::get('email-sends', [EmailSendController::class, 'index']);
+Route::post('email-sends', [EmailSendController::class, 'store']);
+Route::get('email-sends/{emailSend}', [EmailSendController::class, 'show']);
+Route::delete('email-sends/{emailSend}', [EmailSendController::class, 'destroy']);
 Route::get('email-sends/{emailSend}/logs', [EmailSendController::class, 'logs']);
+
+Route::get('stats', StatsController::class);

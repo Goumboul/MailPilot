@@ -22,6 +22,9 @@ class EmailSendResource extends JsonResource
             'last_error'        => $this->last_error,
             'created_at'        => $this->created_at,
             'updated_at'        => $this->updated_at,
+            'recipient'         => new RecipientResource($this->whenLoaded('recipient')),
+            'email_template'    => new EmailTemplateResource($this->whenLoaded('emailTemplate')),
+            'rule'              => new RuleResource($this->whenLoaded('rule')),
         ];
     }
 }

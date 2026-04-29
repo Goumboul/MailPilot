@@ -15,7 +15,11 @@ class EmailSendController extends Controller
 {
     public function index(): AnonymousResourceCollection
     {
-        return EmailSendResource::collection(EmailSend::latest()->get());
+        return EmailSendResource::collection(
+            EmailSend::with(['recipient', 'emailTemplate', 'rule.emailTemplate'])
+                ->latest()
+                ->get()
+        );
     }
 
     public function store(StoreEmailSendRequest $request): EmailSendResource
@@ -31,18 +35,20 @@ class EmailSendController extends Controller
 
         SendEmailJob::dispatch($emailSend);
 
-        return new EmailSendResource($emailSend);
+        return new EmailSendResource($emailSend->load(['recipient', 'emailTemplate', 'rule.emailTemplate']));
     }
 
     public function show(EmailSend $emailSend): EmailSendResource
     {
-        return new EmailSendResource($emailSend);
+        return new EmailSendResource(
+            $emailSend->load(['recipient', 'emailTemplate', 'rule.emailTemplate'])
+        );
     }
 
     public function logs(EmailSend $emailSend): AnonymousResourceCollection
     {
         return EmailLogResource::collection(
-            $emailSend->emailLogs()->orderBy('created_at')->get()
+            $emailSend->emailLogs()->latest('created_at')->get()
         );
     }
 

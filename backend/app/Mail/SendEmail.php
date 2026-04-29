@@ -2,25 +2,23 @@
 
 namespace App\Mail;
 
+use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
 class SendEmail extends Mailable
 {
-    use SerializesModels;
+    use Queueable, SerializesModels;
 
-    public string $renderedBody;
+    private string $renderedBody;
 
-    public function __construct(
-        string $subject,
-        string $body,
-        public string $recipientEmail,
-    ) {
+    public function __construct(string $subject, string $body)
+    {
         $this->subject($subject);
         $this->renderedBody = $body;
     }
 
-    public function build(): self
+    public function build(): static
     {
         return $this->html($this->renderedBody);
     }
