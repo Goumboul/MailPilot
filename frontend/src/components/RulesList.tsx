@@ -53,67 +53,56 @@ function TriggerResultModal({
 }) {
   if (!rule || !result) return null
 
-  const stats = [
-    {
-      label: 'Recipients matched',
-      value: result.matched,
-      color: 'text-zinc-100',
-      bg: 'bg-zinc-800',
-    },
-    {
-      label: 'Already sent (skipped)',
-      value: result.already_sent,
-      color: 'text-yellow-400',
-      bg: 'bg-yellow-500/10',
-    },
-    {
-      label: 'Enqueued for delivery',
-      value: result.enqueued,
-      color: 'text-emerald-400',
-      bg: 'bg-emerald-500/10',
-    },
-  ]
-
   return (
-    <Modal open={!!rule} onClose={onClose} title="Rule Triggered" size="md">
-      <div className="space-y-5">
-        {/* Success banner */}
-        <div className="flex items-center gap-3 rounded-lg bg-emerald-500/10 px-4 py-3 ring-1 ring-emerald-500/20">
-          <svg
-            className="h-5 w-5 shrink-0 text-emerald-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-          <div>
-            <p className="text-sm font-semibold text-emerald-300">Triggered successfully</p>
-            <p className="text-xs text-emerald-500 mt-0.5">{rule.name}</p>
+    <Modal open={!!rule} onClose={onClose} title="" size="md">
+      <div className="space-y-6">
+        {/* Success header */}
+        <div className="text-center pt-2">
+          <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 mb-3">
+            <svg className="h-7 w-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-zinc-100">Rule Triggered</h3>
+          <p className="text-sm text-zinc-500 mt-0.5">{rule.name}</p>
+        </div>
+
+        {/* Big numbers */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-xl bg-zinc-800 ring-1 ring-zinc-700 p-4 text-center">
+            <p className="text-3xl font-bold tabular-nums text-zinc-100">{result.matched}</p>
+            <p className="mt-1 text-xs text-zinc-500 leading-tight">matched</p>
+          </div>
+          <div className="rounded-xl bg-emerald-500/10 ring-1 ring-emerald-500/20 p-4 text-center">
+            <p className="text-3xl font-bold tabular-nums text-emerald-400">{result.enqueued}</p>
+            <p className="mt-1 text-xs text-emerald-600 leading-tight">enqueued</p>
+          </div>
+          <div className="rounded-xl bg-amber-500/10 ring-1 ring-amber-500/20 p-4 text-center">
+            <p className="text-3xl font-bold tabular-nums text-amber-400">{result.already_sent}</p>
+            <p className="mt-1 text-xs text-amber-600 leading-tight">skipped</p>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-3">
-          {stats.map((s) => (
-            <div key={s.label} className={`rounded-lg ${s.bg} ring-1 ring-zinc-800 p-3 text-center`}>
-              <p className={`text-2xl font-semibold tabular-nums ${s.color}`}>{s.value}</p>
-              <p className="mt-1 text-xs text-zinc-500 leading-tight">{s.label}</p>
-            </div>
-          ))}
-        </div>
-
         {result.enqueued > 0 && (
-          <p className="text-xs text-zinc-500 text-center">
-            {result.enqueued} email{result.enqueued !== 1 ? 's' : ''} added to the queue.
-            Check the Sends page to monitor delivery.
-          </p>
+          <div className="rounded-lg bg-emerald-500/5 ring-1 ring-emerald-500/15 px-4 py-3 text-center">
+            <p className="text-sm text-emerald-400 font-medium">
+              {result.enqueued} email{result.enqueued !== 1 ? 's' : ''} added to the delivery queue
+            </p>
+            <p className="text-xs text-emerald-600 mt-0.5">
+              Check the Sends page to monitor status in real time
+            </p>
+          </div>
         )}
 
         {result.enqueued === 0 && result.matched > 0 && (
-          <p className="text-xs text-zinc-500 text-center">
+          <p className="text-sm text-zinc-500 text-center">
             All matching recipients have already received this email.
+          </p>
+        )}
+
+        {result.matched === 0 && (
+          <p className="text-sm text-zinc-500 text-center">
+            No recipients matched the conditions for this rule.
           </p>
         )}
 
@@ -277,12 +266,12 @@ export function RulesList() {
     <>
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-zinc-100">Automation Rules</h2>
-            <p className="text-sm text-zinc-500">
-              {rules.filter((r) => r.is_active).length} active / {rules.length} total
+            <h1 className="text-2xl font-bold text-zinc-100">Rules</h1>
+            <p className="mt-1 text-sm text-zinc-500">
+              Create automation rules to send emails based on recipient conditions &mdash; {rules.filter((r) => r.is_active).length} active / {rules.length} total
             </p>
           </div>
           <Button onClick={() => setShowCreate(true)}>
@@ -340,28 +329,42 @@ export function RulesList() {
                 header: '',
                 render: (r) => (
                   <div className="flex items-center gap-2 justify-end">
-                    {/* Trigger */}
-                    <Button
-                      size="sm"
-                      loading={triggeringId === r.id}
-                      disabled={!r.is_active || triggeringId !== null}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        void handleTrigger(r)
-                      }}
-                      className="bg-emerald-600/10 text-emerald-400 hover:bg-emerald-600/20 ring-1 ring-inset ring-emerald-500/30"
-                    >
-                      {triggeringId === r.id ? null : (
-                        <svg
-                          className="h-3.5 w-3.5"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
+                    {/* Trigger — hero action */}
+                    <div className="flex flex-col items-center gap-0.5">
+                      <button
+                        disabled={!r.is_active || triggeringId !== null}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          void handleTrigger(r)
+                        }}
+                        className={`
+                          inline-flex items-center gap-2 rounded-lg px-4 py-1.5 text-sm font-semibold
+                          transition-all duration-150 focus-visible:outline focus-visible:outline-2
+                          focus-visible:outline-offset-2 focus-visible:outline-emerald-500
+                          disabled:opacity-40 disabled:cursor-not-allowed
+                          ${r.is_active && triggeringId !== r.id
+                            ? 'bg-emerald-500 text-white hover:bg-emerald-400 hover:shadow-md hover:shadow-emerald-500/30 active:scale-95 animate-pulse'
+                            : 'bg-emerald-600/10 text-emerald-400 ring-1 ring-inset ring-emerald-500/30'
+                          }
+                          ${triggeringId === r.id ? 'animate-none' : ''}
+                        `}
+                      >
+                        {triggeringId === r.id ? (
+                          <svg className="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                        ) : (
+                          <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        )}
+                        {triggeringId === r.id ? 'Running...' : 'Trigger'}
+                      </button>
+                      {r.is_active && triggeringId !== r.id && (
+                        <span className="text-[10px] text-emerald-600 font-medium">Try it now</span>
                       )}
-                      {triggeringId === r.id ? 'Running...' : 'Trigger'}
-                    </Button>
+                    </div>
 
                     {/* Toggle active */}
                     <Button

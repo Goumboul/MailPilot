@@ -28,29 +28,30 @@ function StatsBar({ sends }: { sends: EmailSend[] }) {
   const pending = sends.filter((s) => s.status === 'pending').length
   const sent = sends.filter((s) => s.status === 'sent').length
   const failed = sends.filter((s) => s.status === 'failed').length
+  const total = sends.length
 
   const items = [
-    { label: 'pending', count: pending, color: 'text-yellow-400', dot: 'bg-yellow-400' },
-    { label: 'sent', count: sent, color: 'text-emerald-400', dot: 'bg-emerald-400' },
-    { label: 'failed', count: failed, color: 'text-red-400', dot: 'bg-red-400' },
+    { label: 'Sent', count: sent, color: 'text-emerald-400', dot: 'bg-emerald-400', bg: 'bg-emerald-500/10' },
+    { label: 'Pending', count: pending, color: 'text-amber-400', dot: 'bg-amber-400', bg: 'bg-amber-500/10' },
+    { label: 'Failed', count: failed, color: 'text-red-400', dot: 'bg-red-400', bg: 'bg-red-500/10' },
   ]
 
   return (
-    <div className="flex items-center gap-4 rounded-xl bg-zinc-900 ring-1 ring-zinc-800 px-5 py-3">
-      {items.map((item, i) => (
-        <div key={item.label} className="flex items-center gap-2">
-          {i > 0 && <div className="h-4 w-px bg-zinc-800 mr-2" />}
-          <span className={`h-2 w-2 rounded-full ${item.dot}`} />
-          <span className={`text-sm font-semibold tabular-nums ${item.color}`}>
-            {item.count}
-          </span>
+    <div className="grid grid-cols-4 gap-3">
+      {items.map((item) => (
+        <div
+          key={item.label}
+          className={`flex items-center gap-3 rounded-xl ${item.bg} ring-1 ring-zinc-800 px-4 py-3`}
+        >
+          <span className={`h-2.5 w-2.5 rounded-full ${item.dot} shrink-0`} />
+          <span className={`text-xl font-bold tabular-nums ${item.color}`}>{item.count}</span>
           <span className="text-sm text-zinc-500">{item.label}</span>
         </div>
       ))}
-      <div className="ml-auto h-4 w-px bg-zinc-800" />
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold tabular-nums text-zinc-300">{sends.length}</span>
-        <span className="text-sm text-zinc-500">total</span>
+      <div className="flex items-center gap-3 rounded-xl bg-zinc-900 ring-1 ring-zinc-800 px-4 py-3">
+        <span className="h-2.5 w-2.5 rounded-full bg-zinc-600 shrink-0" />
+        <span className="text-xl font-bold tabular-nums text-zinc-300">{total}</span>
+        <span className="text-sm text-zinc-500">Total</span>
       </div>
     </div>
   )
@@ -131,8 +132,8 @@ export function SendsList() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-zinc-100">Email Sends</h2>
-          <p className="text-sm text-zinc-500">
+          <h1 className="text-2xl font-bold text-zinc-100">Email Sends</h1>
+          <p className="mt-1 text-sm text-zinc-500">
             Queue of all email deliveries triggered by automation rules
           </p>
         </div>
@@ -169,22 +170,33 @@ export function SendsList() {
         {FILTERS.map((f) => {
           const active = filter === f.key
           const count = countFor(f.key)
+          const colorMap: Record<string, { tab: string; badge: string }> = {
+            all: {
+              tab: active ? 'bg-zinc-800 text-zinc-100 ring-1 ring-zinc-700' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50',
+              badge: active ? 'bg-zinc-700 text-zinc-300' : 'bg-zinc-800 text-zinc-500',
+            },
+            pending: {
+              tab: active ? 'bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50',
+              badge: active ? 'bg-amber-500/20 text-amber-300' : 'bg-zinc-800 text-zinc-500',
+            },
+            sent: {
+              tab: active ? 'bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50',
+              badge: active ? 'bg-emerald-500/20 text-emerald-300' : 'bg-zinc-800 text-zinc-500',
+            },
+            failed: {
+              tab: active ? 'bg-red-500/15 text-red-300 ring-1 ring-red-500/30' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50',
+              badge: active ? 'bg-red-500/20 text-red-300' : 'bg-zinc-800 text-zinc-500',
+            },
+          }
+          const styles = colorMap[f.key] ?? colorMap.all
           return (
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors ${
-                active
-                  ? 'bg-zinc-800 text-zinc-100 ring-1 ring-zinc-700'
-                  : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50'
-              }`}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-all duration-150 ${styles.tab}`}
             >
               {f.label}
-              <span
-                className={`rounded-md px-1.5 py-0.5 text-xs font-medium tabular-nums ${
-                  active ? 'bg-zinc-700 text-zinc-300' : 'bg-zinc-800 text-zinc-500'
-                }`}
-              >
+              <span className={`rounded-md px-1.5 py-0.5 text-xs font-medium tabular-nums ${styles.badge}`}>
                 {count}
               </span>
             </button>
@@ -259,16 +271,18 @@ export function SendsList() {
               key: 'actions',
               header: '',
               render: (send) => (
-                <Button
-                  variant="ghost"
-                  size="sm"
+                <button
                   onClick={(e) => {
                     e.stopPropagation()
                     void openLogs(send)
                   }}
+                  className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-indigo-400 hover:text-indigo-300 hover:bg-indigo-600/10 ring-1 ring-inset ring-indigo-500/20 hover:ring-indigo-500/40 transition-all duration-150"
                 >
+                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+                  </svg>
                   View Logs
-                </Button>
+                </button>
               ),
             },
           ]}
